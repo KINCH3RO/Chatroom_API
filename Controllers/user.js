@@ -77,6 +77,7 @@ module.exports = (app) => {
 
         let requestExist = await UserModel.findOne({ _id: senderId, 'friends.userId': receiverId })
         if (requestExist) {
+         
             res.status(402).send("Your request is : " + requestExist.friends[0].status)
             return
         }

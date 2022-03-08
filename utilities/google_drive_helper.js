@@ -1,33 +1,30 @@
 const fs = require('fs');
-const readline = require('readline');
+require('dotenv').config()
 const { google } = require('googleapis');
 const { Readable } = require('stream');
 
-let credientialsJSON = null;
-let tokenJSON = null
 
-credientialsJSON = JSON.parse(fs.readFileSync("credentials.json"))
-tokenJSON = JSON.parse(fs.readFileSync("token.json"))
-credientialsJSON = credientialsJSON.web
+
 
 const oauth2client = new google.auth.OAuth2(
-    credientialsJSON.client_id,
-    credientialsJSON.client_secret,
-    credientialsJSON.redirect_uris[0]
+    process.env.client_id,
+    process.env.client_secret,
+    process.env.redirectUri
 )
 
 const drive = google.drive({
     version: 'v3',
-    auth: oauth2client
+    auth: oauth2client,
+
 })
 
 
-oauth2client.setCredentials({ refresh_token: tokenJSON.refresh_token })
+oauth2client.setCredentials({ access_token: process.env.access_token, refresh_token: process.env.refresh_token })
 
-module.exports.uploadFile = async function (name, mimeType, buffer, folderId = "1WqhCAZ6fWNOdTaowkDs0wc7giaZH39Dk",w=520) {
+module.exports.uploadFile = async function (name, mimeType, buffer, folderId = "1WqhCAZ6fWNOdTaowkDs0wc7giaZH39Dk", w = 520) {
 
     const readableStream = new Readable()
-       
+
     readableStream.push(buffer)
     readableStream.push(null)
     var fileMetadata = {
@@ -40,24 +37,24 @@ module.exports.uploadFile = async function (name, mimeType, buffer, folderId = "
         body: readableStream
     };
     let response = await drive.files.create({
- 
+
         resource: fileMetadata,
         media: media,
         fields: 'id,webViewLink,webContentLink,id,thumbnailLink,hasThumbnail'
-        
+
     });
 
     await drive.permissions.create({
-        fileId:response.data.id,
-        requestBody:{
-            role:'reader',
-            type:'anyone'
+        fileId: response.data.id,
+        requestBody: {
+            role: 'reader',
+            type: 'anyone'
         },
 
     })
 
-    
-    response.data.thumbnailLink =`https://drive.google.com/thumbnail?authuser=0&sz=w${w}&id=${response.data.id}`
+
+    response.data.thumbnailLink = `https://drive.google.com/thumbnail?authuser=0&sz=w${w}&id=${response.data.id}`
     // response.data.thumbnailLink =`https://lh3.googleusercontent.com/d/${response.data.id}=w${w}?authuser=0`
     return response.data;
 

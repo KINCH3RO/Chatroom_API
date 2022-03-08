@@ -233,5 +233,27 @@ module.exports = (app) => {
 
     })
 
+    app.put("/api/chatroom/leaveRoom", (req, res) => {
+        let body = req.body
+        let member_id = req.headers["user_id"]
+
+        if (!member_id || !body.chatroom_id) {
+            res.status(400).send('Bad Request')
+            return;
+        }
+        let chatroomModel = getModel('ChatRoom', ChatRoomSchema)
+        chatroomModel.findOneAndUpdate({ _id: body.chatroom_id, private: false }, { $pull: { members: member_id } }, (err, doc) => {
+            if (err) console.log(err);
+            if (doc) {
+                res.json(doc)
+                return
+            }
+
+            res.status(404).send('not found')
+        }).select("_id")
+
+
+    })
+
 
 }

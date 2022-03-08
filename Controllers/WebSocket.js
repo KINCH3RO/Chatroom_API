@@ -17,10 +17,10 @@ module.exports = (app, io) => {
     }
 
     if (connectedUsers[req.query.userId]) {
-      res.send("online")
+      res.json({message:"online"})
       return
     }
-    res.send("offline")
+    res.json({message:"offline"})
 
   })
 

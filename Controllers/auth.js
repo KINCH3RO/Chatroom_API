@@ -44,7 +44,7 @@ module.exports = (app) => {
             let token = authHeader.split(' ')[1]
             res.json(verifyToken(token))
         } catch (error) {
-            res.status(403).send("Not Authorized")
+            res.status(403).json({message:'Not authorized'})
         }
 
     })
@@ -57,9 +57,9 @@ module.exports = (app) => {
 
             verifyToken(token)
 
-            res.status(200).send("Authorized")
+            res.status(200).send({message:"Authorized"})
         } catch (error) {
-            res.status(403).send("Not Authorized")
+            res.status(403).send({message: "Not Authorized"})
         }
 
     })
