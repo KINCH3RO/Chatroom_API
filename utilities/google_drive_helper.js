@@ -6,20 +6,66 @@ const { Readable } = require('stream');
 
 
 
+
 const oauth2client = new google.auth.OAuth2(
     process.env.client_id,
     process.env.client_secret,
-    process.env.redirectUri
+    'http://localhost:3000/api/auth/google/callback'
+
 )
 
-const drive = google.drive({
+let drive = google.drive({
     version: 'v3',
     auth: oauth2client,
 
 })
 
 
-oauth2client.setCredentials({ access_token: process.env.access_token, refresh_token: process.env.refresh_token })
+checkIfTokenExist()
+function checkIfTokenExist() {
+    fs.readFile(process.cwd() + "/token.json", { encoding: 'utf-8' }, (err, data) => {
+        if (err) return
+     
+        oauth2client.setCredentials(JSON.parse(data));
+     
+        console.log("google api authorized");
+    })
+}
+
+
+
+module.exports.authorizeGoogleApi = function authorizeGoogleApi(code) {
+    oauth2client.getToken(code, (err, token) => {
+        if (err) return console.error('Error retrieving access token', err);
+        if (token) {
+            fs.writeFileSync(process.cwd() + "/token.json", JSON.stringify(token))
+            oauth2client.setCredentials(token);
+        }
+
+
+
+    })
+}
+
+module.exports.generateUrl = function generateAuthUrl() {
+
+    let oauthUrl = oauth2client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/drive'],
+
+    })
+    return oauthUrl
+}
+
+
+
+
+
+
+
+
+
+// oauth2client.setCredentials({ access_token: process.env.access_token, refresh_token: process.env.refresh_token })
 
 module.exports.uploadFile = async function (name, mimeType, buffer, folderId = "1WqhCAZ6fWNOdTaowkDs0wc7giaZH39Dk", w = 520) {
 

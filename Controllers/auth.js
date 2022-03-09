@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt')
 const { generateToken, authenticateToken, verifyToken } = require('../utilities/jwt_utils')
 const { UserSchema, getModel } = require('../Schemas/Schemas')
-
+const { authorizeGoogleApi, generateUrl } = require('../utilities/google_drive_helper')
 
 
 
@@ -10,7 +10,19 @@ const { UserSchema, getModel } = require('../Schemas/Schemas')
 module.exports = (app) => {
     //token auth middleware
     app.use(authenticateToken)
+    app.get("/api/auth/google/callback", (req, res) => {
 
+        let code = req.query.code
+
+        if (code) {
+            authorizeGoogleApi(code)
+            res.end('authorized')
+        } else {
+            res.end("authorize via " + generateUrl())
+        }
+
+
+    })
     app.post('/api/auth/login', (req, res) => {
 
         let body = req.body
@@ -44,7 +56,7 @@ module.exports = (app) => {
             let token = authHeader.split(' ')[1]
             res.json(verifyToken(token))
         } catch (error) {
-            res.status(403).json({message:'Not authorized'})
+            res.status(403).json({ message: 'Not authorized' })
         }
 
     })
@@ -57,9 +69,9 @@ module.exports = (app) => {
 
             verifyToken(token)
 
-            res.status(200).send({message:"Authorized"})
+            res.status(200).send({ message: "Authorized" })
         } catch (error) {
-            res.status(403).send({message: "Not Authorized"})
+            res.status(403).send({ message: "Not Authorized" })
         }
 
     })

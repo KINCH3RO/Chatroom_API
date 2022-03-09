@@ -15,7 +15,7 @@ function verifyToken(token) {
 }
 
 
-no_auth_paths = ["/api/auth/login", "/api/user/signup", "/api/auth/login/", "/api/user/signup/"]
+no_auth_paths = ["/api/auth/login", "/api/user/signup", "/api/auth/login/", "/api/user/signup/" ,"/api/auth/google/callback"]
 function authenticateToken(req, res, next) {
 
     if (no_auth_paths.includes(req.path)) {
