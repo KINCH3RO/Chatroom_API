@@ -10,7 +10,7 @@ const { Readable } = require('stream');
 const oauth2client = new google.auth.OAuth2(
     process.env.client_id,
     process.env.client_secret,
-    'http://localhost:3000/api/auth/google/callback'
+    process.env.redirect_uri
 
 )
 
