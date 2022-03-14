@@ -16,18 +16,17 @@ var corsOptions = {
 app.use(bodyparser.json())
 app.use(cors(corsOptions))
 app.use(fileUpload())
-mainController(app,io)
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
   console.log("connected succesfully");
+
+  app.get('/', (req, res) => {
+    res.send('server running')
+  })
+  mainController(app, io)
 });
-
-
-
-
-
 
 
 
